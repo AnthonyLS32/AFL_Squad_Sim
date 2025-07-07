@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "name": "Lance Franklin",
+    "year": 2020,
+    "position": "Forward",
+    "goals": 3.2,
+    "disposals": 15.4,
+    "tackles": 2.1,
+    "ovr": 90,
+    "photo_url": "https://www.afl.com.au/player/1821"
+  },
+  {
+    "name": "Dustin Martin",
+    "year": 2017,
+    "position": "Midfield",
+    "goals": 2.4,
+    "disposals": 25.3,
+    "tackles": 3.5,
+    "ovr": 95,
+    "photo_url": "https://www.afl.com.au/player/1767"
+  }
+  // Add 20 more
+]
