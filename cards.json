@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Player Example",
+        "year": 2024,
+        "games": 20,
+        "position": "Inside Mid",
+        "goals": 1.2,
+        "tackles": 5,
+        "hitouts": 0,
+        "clearances": 6,
+        "disposals": 22,
+        "one_percenters": 0.5,
+        "rebound50s": 0.5,
+        "marks": 4
+    }
+]
