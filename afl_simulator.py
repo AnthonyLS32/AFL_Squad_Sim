@@ -8,18 +8,17 @@ with open('players.json') as f:
 
 # Initialize session state
 if 'squad' not in st.session_state:
-    # Load whole player pool as squad (all players)
+    # Full player pool as squad
     st.session_state['squad'] = player_pool.copy()
 
 if 'selected_team' not in st.session_state:
-    # Prepopulate selected_team with 4 forwards, 4 mids, 2 rucks, 4 backs, 3 bench
-    forwards = [p for p in player_pool if p['line'] == "Forward"]
-    mids = [p for p in player_pool if p['line'] == "Mid"]
-    rucks = [p for p in player_pool if p['line'] == "Ruck"]
-    backs = [p for p in player_pool if p['line'] == "Back"]
-    bench = [p for p in player_pool if p['line'] == "Bench"]
+    # Prepopulate selected_team by position
+    forwards = [p for p in player_pool if p['position'] == "Forward"]
+    mids = [p for p in player_pool if p['position'] == "Mid"]
+    rucks = [p for p in player_pool if p['position'] == "Ruck"]
+    backs = [p for p in player_pool if p['position'] == "Back"]
+    bench = [p for p in player_pool if p['position'] == "Bench"]
 
-    # Randomly sample players for each line or fallback to fill if not enough players
     selected_team = []
     selected_team += random.sample(forwards, min(4, len(forwards)))
     selected_team += random.sample(mids, min(4, len(mids)))
@@ -42,7 +41,7 @@ tab = st.sidebar.selectbox(
 
 def player_full_stats_str(p):
     return (
-        f"{p['name']} | Line: {p['line']} | "
+        f"{p['name']} | Pos: {p['position']} | Line: {p.get('line', 'N/A')} | "
         f"OVR: {p['ovr']} | G:{p.get('goals',0)} "
         f"D:{p.get('disposals',0)} T:{p.get('tackles',0)} "
         f"I50:{p.get('inside50',0)} R50:{p.get('rebound50',0)} "
@@ -59,26 +58,45 @@ elif tab == "Selected Team":
     st.title("Selected Team")
     st.write(f"XP: {st.session_state['xp']} | Coins: {st.session_state['coins']}")
 
-    # Group players by line for display
-    lines = ["Back", "Mid", "Ruck", "Forward", "Bench"]
+    # Position limits
     limits = {"Forward": 4, "Mid": 4, "Ruck": 2, "Back": 4, "Bench": 3}
 
-    # Count current lineup numbers
-    line_counts = {line: 0 for line in lines}
+    # Count players by position in selected team
+    pos_counts = {pos: 0 for pos in limits.keys()}
     for p in st.session_state['selected_team']:
-        line_counts[p['line']] += 1
+        pos = p.get('position', 'Bench')
+        if pos not in pos_counts:
+            pos = 'Bench'
+        pos_counts[pos] += 1
 
     st.write(
-        f"Selected Team Counts: Forwards {line_counts['Forward']}/4, "
-        f"Mids {line_counts['Mid']}/4, Rucks {line_counts['Ruck']}/2, "
-        f"Backs {line_counts['Back']}/4, Bench {line_counts['Bench']}/3"
+        f"Selected Team Counts: Forwards {pos_counts['Forward']}/4, "
+        f"Mids {pos_counts['Mid']}/4, Rucks {pos_counts['Ruck']}/2, "
+        f"Backs {pos_counts['Back']}/4, Bench {pos_counts['Bench']}/3"
     )
 
-    # Show players by line
-    for line in lines:
-        st.subheader(f"{line}s:")
-        for p in [pl for pl in st.session_state['selected_team'] if pl['line'] == line]:
+    # Display players grouped by position
+    for pos in ["Back", "Mid", "Ruck", "Forward", "Bench"]:
+        st.subheader(f"{pos}s:")
+        players = [pl for pl in st.session_state['selected_team'] if pl.get('position','Bench') == pos]
+        for p in players:
             st.write(player_full_stats_str(p))
+
+    # Player add section
+    available_names = [p['name'] for p in st.session_state['squad'] if p not in st.session_state['selected_team']]
+    selected_name = st.selectbox("Select player to add:", available_names)
+
+    if st.button("Add Player"):
+        player = next(p for p in st.session_state['squad'] if p['name'] == selected_name)
+        pos = player.get('position', 'Bench')
+        if pos not in limits:
+            pos = 'Bench'
+
+        if pos_counts[pos] >= limits[pos]:
+            st.warning(f"Max {pos}s reached.")
+        else:
+            st.session_state['selected_team'].append(player)
+            st.success(f"Added {player['name']} to {pos}.")
 
 elif tab == "Training":
     st.title("Training")
