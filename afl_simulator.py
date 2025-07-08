@@ -10,21 +10,27 @@ with open('players_full.json') as f:
 # ---- Session State ----
 if 'squad' not in st.session_state:
     if os.path.exists('squad.json'):
-        with open('squad.json') as f:
-            st.session_state['squad'] = json.load(f)
+        try:
+            with open('squad.json') as f:
+                st.session_state['squad'] = json.load(f)
+        except json.JSONDecodeError:
+            st.session_state['squad'] = random.sample(player_pool, 22)
     else:
         st.session_state['squad'] = random.sample(player_pool, 22)
-        with open('squad.json', 'w') as f:
-            json.dump(st.session_state['squad'], f)
+    with open('squad.json', 'w') as f:
+        json.dump(st.session_state['squad'], f)
 
 if 'career' not in st.session_state:
     if os.path.exists('career.json'):
-        with open('career.json') as f:
-            st.session_state['career'] = json.load(f)
+        try:
+            with open('career.json') as f:
+                st.session_state['career'] = json.load(f)
+        except json.JSONDecodeError:
+            st.session_state['career'] = {'round': 1, 'coins': 100, 'xp': 0}
     else:
         st.session_state['career'] = {'round': 1, 'coins': 100, 'xp': 0}
-        with open('career.json', 'w') as f:
-            json.dump(st.session_state['career'], f)
+    with open('career.json', 'w') as f:
+        json.dump(st.session_state['career'], f)
 
 squad = st.session_state['squad']
 career = st.session_state['career']
@@ -35,7 +41,7 @@ st.title("🏉 AFL Ultimate Squad FUT Prototype")
 def display_player_card(player):
     st.image(player.get('photo_url', 'https://via.placeholder.com/100'), width=80)
     st.write(f"**{player['name']}** ({player['year']})")
-    age = player.get('year', 2024) - (1987 if 'Lance' in player['name'] else 1995)  # mock
+    age = player.get('year', 2024) - (1987 if 'Lance' in player['name'] else 1995)  # simple mock
     st.write(f"Age: {age}")
     st.write(f"{player['position']} | OVR: {player['ovr']}")
     st.write(f"G: {player['goals']} | D: {player['disposals']} | T: {player['tackles']}")
