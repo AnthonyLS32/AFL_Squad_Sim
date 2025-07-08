@@ -2,7 +2,6 @@ import streamlit as st
 import json
 import random
 import os
-from datetime import datetime
 
 # ---- Load players ----
 with open('players_full.json') as f:
@@ -36,7 +35,7 @@ st.title("🏉 AFL Ultimate Squad FUT Prototype")
 def display_player_card(player):
     st.image(player.get('photo_url', 'https://via.placeholder.com/100'), width=80)
     st.write(f"**{player['name']}** ({player['year']})")
-    age = player.get('year', 2024) - (1987 if 'Lance' in player['name'] else 1995)  # simple mock
+    age = player.get('year', 2024) - (1987 if 'Lance' in player['name'] else 1995)  # mock
     st.write(f"Age: {age}")
     st.write(f"{player['position']} | OVR: {player['ovr']}")
     st.write(f"G: {player['goals']} | D: {player['disposals']} | T: {player['tackles']}")
@@ -80,4 +79,75 @@ swap_out = st.selectbox("Pick position to replace", pos_options)
 swap_in = st.selectbox("Pick bench player to swap in", pos_options[18:])
 
 if st.button("Swap"):
-    idx
+    idx_out = int(swap_out.split()[0]) - 1
+    idx_in = int(swap_in.split()[0]) - 1
+    squad[idx_out], squad[idx_in] = squad[idx_in], squad[idx_out]
+    with open('squad.json', 'w') as f:
+        json.dump(squad, f)
+    st.success("Swapped!")
+
+# ---- Opponent & Match ----
+st.header(f"🎮 Career Mode — Round {career['round']}/23")
+if career['round'] <= 23:
+    ai_team = random.sample(player_pool, 22)
+    ai_ovr = sum([p['ovr'] for p in ai_team]) / len(ai_team)
+    my_ovr = sum([p['ovr'] for p in squad]) / len(squad)
+    st.write(f"Your Avg OVR: {my_ovr:.1f}")
+    st.write(f"Opponent Avg OVR: {ai_ovr:.1f}")
+    if st.button("Play Match"):
+        result = random.random() + (my_ovr - ai_ovr)/100
+        if result > 0.55:
+            outcome = "WIN"
+            coins = 50
+            xp = 10
+        elif result > 0.45:
+            outcome = "DRAW"
+            coins = 30
+            xp = 5
+        else:
+            outcome = "LOSS"
+            coins = 10
+            xp = 2
+        career['coins'] += coins
+        career['xp'] += xp
+        career['round'] += 1
+        with open('career.json', 'w') as f:
+            json.dump(career, f)
+        st.success(f"{outcome}! +{coins} Coins, +{xp} XP")
+else:
+    st.write("🏆 Season finished!")
+
+# ---- Packs ----
+st.header("🎁 Packs")
+st.write(f"Coins: {career['coins']}")
+if st.button("Buy Pack (50 coins)"):
+    if career['coins'] >= 50:
+        new_card = random.choice(player_pool)
+        squad.append(new_card)
+        career['coins'] -= 50
+        with open('squad.json', 'w') as f:
+            json.dump(squad, f)
+        with open('career.json', 'w') as f:
+            json.dump(career, f)
+        st.success(f"You got {new_card['name']}!")
+    else:
+        st.error("Not enough coins!")
+
+# ---- Training ----
+st.header("📈 Training")
+st.write(f"XP Available: {career['xp']}")
+train_choice = st.selectbox("Pick player to train", pos_options)
+stat_choice = st.selectbox("Pick stat to train", ["goals", "disposals", "tackles"])
+
+if st.button("Train (+0.1 to stat, -5 XP)"):
+    if career['xp'] >= 5:
+        idx = int(train_choice.split()[0]) - 1
+        squad[idx][stat_choice] += 0.1
+        career['xp'] -= 5
+        with open('squad.json', 'w') as f:
+            json.dump(squad, f)
+        with open('career.json', 'w') as f:
+            json.dump(career, f)
+        st.success(f"Trained {squad[idx]['name']}!")
+    else:
+        st.error("Not enough XP!")
