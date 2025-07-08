@@ -177,3 +177,4 @@ if st.button("Train (+0.1, -5 XP)"):
         st.success(f"Trained {squad[idx]['name']} +0.1 {selected_stat}")
     else:
         st.warning("Not enough XP!")
+        
