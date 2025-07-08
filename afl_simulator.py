@@ -6,14 +6,18 @@ import streamlit as st
 with open('players_full.json') as f:
     player_pool = json.load(f)
 
-# Ensure enough players
+# Make sure pool is big enough
 if len(player_pool) < 22:
-    st.error("Your player pool must have at least 22 players!")
+    st.error("Your player pool must have at least 22 players.")
     st.stop()
 
-# Initialize squad
+# Init squad & XP
 if 'squad' not in st.session_state:
     st.session_state['squad'] = random.sample(player_pool, 22)
+if 'xp' not in st.session_state:
+    st.session_state['xp'] = 0
+if 'last_pack' not in st.session_state:
+    st.session_state['last_pack'] = []
 
 # Functions
 def open_pack():
@@ -21,7 +25,8 @@ def open_pack():
     rare = random.choice([p for p in player_pool if p['ovr'] >= 90])
     pack = commons + [rare]
     st.session_state['squad'].extend(pack)
-    st.success("✅ Pack opened! 5 new players added.")
+    st.session_state['last_pack'] = pack
+    st.success(f"🎉 Pack opened! Got {len(pack)} players.")
 
 def delist_player(name):
     st.session_state['squad'] = [p for p in st.session_state['squad'] if p['name'] != name]
@@ -30,9 +35,8 @@ def delist_player(name):
 def train_player(name, stat):
     for p in st.session_state['squad']:
         if p['name'] == name:
-            if stat in ['goals', 'disposals', 'tackles']:
-                p[stat] += 0.5
-                st.success(f"💪 Trained {name}'s {stat}!")
+            p[stat] += 0.5
+            st.success(f"💪 Trained {name}'s {stat} by 0.5!")
             break
 
 def swap_players(player_out, player_in):
@@ -41,22 +45,68 @@ def swap_players(player_out, player_in):
         st.error("Player to swap out not found.")
         return
     if out['line'] != player_in['line']:
-        st.error("Position mismatch! Must match line.")
+        st.error("Must swap within same line!")
         return
     st.session_state['squad'].remove(out)
     st.session_state['squad'].append(player_in)
     st.success(f"🔄 Swapped {player_out} for {player_in['name']}")
 
+def play_match():
+    my_ovr = sum([p['ovr'] for p in st.session_state['squad']]) / len(st.session_state['squad'])
+    ai_team = random.sample(player_pool, 22)
+    ai_ovr = sum([p['ovr'] for p in ai_team]) / 22
+    st.write(f"Your Team OVR: {my_ovr:.1f}")
+    st.write(f"AI Team OVR: {ai_ovr:.1f}")
+    if my_ovr >= ai_ovr:
+        st.success("🏆 You Won! Earned 100 XP and 1 pack!")
+        st.session_state['xp'] += 100
+        open_pack()
+    else:
+        st.error("❌ You Lost! Earned 50 XP.")
+        st.session_state['xp'] += 50
+
 # UI
-st.title("🏉 AFL Squad FUT-Style")
+st.title("🏉 AFL FUT Career Mode")
 
-# Squad overview
-st.subheader("Your Squad (on the Oval)")
-for p in st.session_state['squad']:
-    st.write(f"• {p['name']} | {p['line']} | OVR: {p['ovr']} | G:{p['goals']} D:{p['disposals']} T:{p['tackles']}")
+st.header(f"Your XP: {st.session_state['xp']}")
 
-# Open Pack
-if st.button("Open Player Pack 🎁"):
+# Show squad by lines
+def line_group(line):
+    return [p for p in st.session_state['squad'] if p['line'] == line]
+
+def show_players(players):
+    for p in players:
+        st.write(f"{p['name']} | {p['line']} | OVR:{p['ovr']} | G:{p['goals']} D:{p['disposals']} T:{p['tackles']}")
+
+st.subheader("🔵 Forwards")
+show_players(line_group('Forward'))
+
+st.subheader("🟢 Mids")
+show_players(line_group('Mid'))
+
+st.subheader("🔴 Backs")
+show_players(line_group('Back'))
+
+st.subheader("🟡 Rucks")
+show_players(line_group('Ruck'))
+
+st.subheader("🟣 Bench (Extra)")
+bench = st.session_state['squad'][18:]
+show_players(bench)
+
+# Play match
+st.subheader("⚡ Play a Match")
+if st.button("Play Match vs AI 🤖"):
+    play_match()
+
+# Show last pack result
+if st.session_state['last_pack']:
+    st.subheader("🎁 Last Pack Contents")
+    for p in st.session_state['last_pack']:
+        st.write(f"{p['name']} | {p['line']} | OVR:{p['ovr']}")
+
+# Open manual pack
+if st.button("Open Extra Pack"):
     open_pack()
 
 # Delist
@@ -67,32 +117,17 @@ if st.button("Delist 🚮"):
 
 # Train
 st.subheader("Train a Player")
-train_name = st.selectbox("Player to Train:", [p['name'] for p in st.session_state['squad']])
+train_name = st.selectbox("Train who?", [p['name'] for p in st.session_state['squad']])
 train_stat = st.selectbox("Which stat?", ["goals", "disposals", "tackles"])
 if st.button("Train 📈"):
     train_player(train_name, train_stat)
 
 # Swap
 st.subheader("Swap Players")
-player_out = st.selectbox("Swap OUT:", [p['name'] for p in st.session_state['squad']])
-player_in = st.selectbox("Swap IN (from pool):", [p['name'] for p in player_pool])
+player_out = st.selectbox("OUT:", [p['name'] for p in st.session_state['squad']])
+player_in = st.selectbox("IN:", [p['name'] for p in player_pool])
 if st.button("Swap 🔄"):
-    in_player_obj = next((p for p in player_pool if p['name'] == player_in), None)
-    if in_player_obj:
-        swap_players(player_out, in_player_obj)
+    in_obj = next((p for p in player_pool if p['name'] == player_in), None)
+    if in_obj:
+        swap_players(player_out, in_obj)
 
-# Simulate match
-st.subheader("Play Match vs AI 🤖")
-if st.button("Play Match"):
-    my_ovr = sum([p['ovr'] for p in st.session_state['squad']]) / len(st.session_state['squad'])
-    ai_team = random.sample(player_pool, 22)
-    ai_ovr = sum([p['ovr'] for p in ai_team]) / len(ai_team)
-    st.write(f"Your Team OVR: {my_ovr:.1f}")
-    st.write(f"AI Team OVR: {ai_ovr:.1f}")
-    if my_ovr > ai_ovr:
-        st.success("🏆 You Won!")
-    else:
-        st.error("❌ You Lost!")
-
-# Debug
-st.caption("Tip: Your squad stays saved in session.")
