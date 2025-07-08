@@ -1,4 +1,5 @@
-import json, random
+import json
+import random
 
 lines = ['Back', 'Mid', 'Forward', 'Ruck']
 players = []
@@ -10,7 +11,7 @@ for i in range(1000):
         weights=[60, 30, 10]
     )[0]
 
-    p = {
+    player = {
         "name": f"Player {i+1}",
         "year": random.choice([2020, 2021, 2022, 2023, 2024]),
         "position": line,
@@ -21,9 +22,9 @@ for i in range(1000):
         "ovr": ovr,
         "photo_url": "https://via.placeholder.com/80"
     }
-    players.append(p)
+    players.append(player)
 
 with open('players_full.json', 'w') as f:
     json.dump(players, f, indent=2)
 
-print("✅ 1000 players generated!")
+print("✅ players_full.json created with 1000 players!")
