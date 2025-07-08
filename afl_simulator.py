@@ -8,22 +8,20 @@ with open('players.json') as f:
 
 # Initialize session state
 if 'squad' not in st.session_state:
-    # Full player pool as squad
     st.session_state['squad'] = player_pool.copy()
 
 if 'selected_team' not in st.session_state:
-    # Prepopulate selected_team by position
+    defenders = [p for p in player_pool if p['position'] == "Defender"]
+    midfields = [p for p in player_pool if p['position'] == "Midfield"]
     forwards = [p for p in player_pool if p['position'] == "Forward"]
-    mids = [p for p in player_pool if p['position'] == "Mid"]
     rucks = [p for p in player_pool if p['position'] == "Ruck"]
-    backs = [p for p in player_pool if p['position'] == "Back"]
     bench = [p for p in player_pool if p['position'] == "Bench"]
 
     selected_team = []
     selected_team += random.sample(forwards, min(4, len(forwards)))
-    selected_team += random.sample(mids, min(4, len(mids)))
+    selected_team += random.sample(midfields, min(4, len(midfields)))
     selected_team += random.sample(rucks, min(2, len(rucks)))
-    selected_team += random.sample(backs, min(4, len(backs)))
+    selected_team += random.sample(defenders, min(4, len(defenders)))
     selected_team += random.sample(bench, min(3, len(bench)))
 
     st.session_state['selected_team'] = selected_team
@@ -58,10 +56,8 @@ elif tab == "Selected Team":
     st.title("Selected Team")
     st.write(f"XP: {st.session_state['xp']} | Coins: {st.session_state['coins']}")
 
-    # Position limits
-    limits = {"Forward": 4, "Mid": 4, "Ruck": 2, "Back": 4, "Bench": 3}
+    limits = {"Forward": 4, "Midfield": 4, "Ruck": 2, "Defender": 4, "Bench": 3}
 
-    # Count players by position in selected team
     pos_counts = {pos: 0 for pos in limits.keys()}
     for p in st.session_state['selected_team']:
         pos = p.get('position', 'Bench')
@@ -71,18 +67,16 @@ elif tab == "Selected Team":
 
     st.write(
         f"Selected Team Counts: Forwards {pos_counts['Forward']}/4, "
-        f"Mids {pos_counts['Mid']}/4, Rucks {pos_counts['Ruck']}/2, "
-        f"Backs {pos_counts['Back']}/4, Bench {pos_counts['Bench']}/3"
+        f"Midfields {pos_counts['Midfield']}/4, Rucks {pos_counts['Ruck']}/2, "
+        f"Defenders {pos_counts['Defender']}/4, Bench {pos_counts['Bench']}/3"
     )
 
-    # Display players grouped by position
-    for pos in ["Back", "Mid", "Ruck", "Forward", "Bench"]:
+    for pos in ["Defender", "Midfield", "Ruck", "Forward", "Bench"]:
         st.subheader(f"{pos}s:")
         players = [pl for pl in st.session_state['selected_team'] if pl.get('position','Bench') == pos]
         for p in players:
             st.write(player_full_stats_str(p))
 
-    # Player add section
     available_names = [p['name'] for p in st.session_state['squad'] if p not in st.session_state['selected_team']]
     selected_name = st.selectbox("Select player to add:", available_names)
 
