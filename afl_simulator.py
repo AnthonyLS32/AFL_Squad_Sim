@@ -84,3 +84,99 @@ elif tab == "Selected Team":
             st.success("Selected team saved!")
             with open(save_file, 'w') as f:
                 json.dump(st.session_state.squad, f)
+        else:
+            st.error("You must select exactly 22 players!")
+
+    if st.session_state.selected_team:
+        st.write("**Current Saved Team:**")
+        for nm in st.session_state.selected_team:
+            st.write(nm)
+
+# --- PLAY MATCH TAB -----------------------------------------------------------------
+elif tab == "Play Match":
+    st.header("Play a Match")
+    if not st.session_state.selected_team or len(st.session_state.selected_team) < 13:
+        st.warning("Select & save at least 13 players in Selected Team first.")
+    else:
+        if st.button("Kick Off vs AI Club"):
+            opponent = random.choice(["Melbourne", "Hawthorn", "Fremantle", "Richmond", "Geelong"])
+            result = random.choices(["Win", "Draw", "Loss"], weights=[0.5, 0.2, 0.3])[0]
+            xp_gain = 50 if result == "Win" else 25 if result == "Draw" else 10
+            coin_gain = 100 if result == "Win" else 50 if result == "Draw" else 0
+            st.session_state.xp += xp_gain
+            st.session_state.coins += coin_gain
+
+            st.subheader(f"{result} vs {opponent}!")
+            st.write(f"You earned {xp_gain} XP & {coin_gain} coins.")
+
+            for name in random.sample(st.session_state.selected_team, 3):
+                st.write(f"{name}: {random.randint(10, 30)} disposals")
+
+            st.write("**Goal Kickers:**")
+            for name in random.sample(st.session_state.selected_team, 3):
+                st.write(f"{name}: {random.randint(1, 4)} goals")
+
+            st.session_state.match_log.append({
+                "opponent": opponent, "result": result,
+                "xp": xp_gain, "coins": coin_gain
+            })
+
+    if st.session_state.match_log:
+        st.subheader("Match History")
+        for m in st.session_state.match_log[-5:]:
+            st.write(f"{m['result']} vs {m['opponent']} (+{m['xp']} XP, +{m['coins']}¢)")
+
+# --- TRAINING TAB -------------------------------------------------------------------
+elif tab == "Training":
+    st.header("Training Center")
+    st.write(f"XP Available: {st.session_state.xp}")
+    player = st.selectbox("Choose Player", [p['name'] for p in st.session_state.squad], key="trn_pl")
+    stat = st.selectbox("Stat to Boost", ["goals", "disposals", "tackles", "inside50", "rebound50", "onepercenters", "hitouts"], key="trn_st")
+    cost = 20
+
+    if st.button(f"Train +0.5 {stat} for {cost} XP"):
+        if st.session_state.xp >= cost:
+            for p in st.session_state.squad:
+                if p['name'] == player:
+                    p[stat] += 0.5
+                    p['ovr'] = round(p['ovr'] + 0.1, 1)
+                    st.session_state.xp -= cost
+                    st.success(f"{player}'s {stat} improved!")
+                    break
+        else:
+            st.error("Not enough XP!")
+
+# --- TRADE/DELIST TAB ---------------------------------------------------------------
+elif tab == "Trade/Delist":
+    st.header("Trade / Delist")
+    to_remove = st.selectbox("Select Player to Remove", [p['name'] for p in st.session_state.squad], key="del_pl")
+    if st.button("Delist Player"):
+        st.session_state.squad = [p for p in st.session_state.squad if p['name'] != to_remove]
+        st.success(f"{to_remove} has been delisted.")
+
+# --- STORE TAB ----------------------------------------------------------------------
+elif tab == "Store":
+    st.header("Store")
+    st.write(f"Coins: {st.session_state.coins}")
+    price = 200
+    if st.button(f"Buy 5‐Player Pack for {price} Coins"):
+        if st.session_state.coins >= price:
+            st.session_state.coins -= price
+            commons = [p for p in player_pool if p['ovr'] < 90]
+            rares = [p for p in player_pool if p['ovr'] >= 90]
+            pack = random.sample(commons, 4) + random.sample(rares, 1)
+
+            new = 0
+            owned_names = [p['name'] for p in st.session_state.squad]
+            for pl in pack:
+                if pl['name'] not in owned_names:
+                    st.session_state.squad.append(pl)
+                    new += 1
+
+            st.write("**Pack Contents:**")
+            for pl in pack:
+                st.markdown(stats(pl))
+
+            st.success(f"Added {new} new players.")
+        else:
+            st.error("Not enough coins!")
