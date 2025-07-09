@@ -15,10 +15,12 @@ if 'position_limits' not in st.session_state:
     st.session_state.position_limits = {
         'Forward': 6, 'Midfield': 6, 'Ruck': 2, 'Defender': 6, 'Bench': 2
     }
-if 'to_rerun' not in st.session_state:
-    st.session_state.to_rerun = False
+if 'click_action' not in st.session_state:
+    st.session_state.click_action = None
+if 'click_player' not in st.session_state:
+    st.session_state.click_player = None
 
-# --- Inject CSS for card styling ---
+# --- Inject CSS for player card styling ---
 st.markdown("""
 <style>
 .player-card {
@@ -35,16 +37,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Helper to count position slots used ---
+# --- Helper: count how many players already picked in this position ---
 def count_position(pos):
     return len([p for p in st.session_state.selected_team if p['position'] == pos])
 
-# --- Squad Display ---
+# --- Title and status ---
 st.title("AFL FUT Squad Manager")
-
 st.header("Your Squad")
 st.write(f"Selected Players: {len(st.session_state.selected_team)}/22")
 
+# --- Show Squad ---
 for player in st.session_state.squad:
     is_selected = player in st.session_state.selected_team
     card_class = "player-card selected" if is_selected else "player-card"
@@ -54,29 +56,40 @@ for player in st.session_state.squad:
       <img src="{player['photo_url']}" width="100"><br>
       <b>{player['name']}</b><br>
       {player['position']} | OVR: {player['ovr']}<br>
+    </div>
     """, unsafe_allow_html=True)
 
-    if not is_selected:
-        if st.button(f"Select {player['name']}", key=f"sel_{player['name']}"):
-            pos = player['position']
-            if count_position(pos) < st.session_state.position_limits[pos]:
-                st.session_state.selected_team.append(player)
-                st.session_state.to_rerun = True
-            else:
-                st.warning(f"No more slots for {pos}s!")
+    col1, col2 = st.columns(2)
+    with col1:
+        if not is_selected:
+            if st.button(f"Select {player['name']}", key=f"sel_{player['name']}"):
+                st.session_state.click_action = "select"
+                st.session_state.click_player = player
+    with col2:
+        if is_selected:
+            if st.button(f"Deselect {player['name']}", key=f"desel_{player['name']}"):
+                st.session_state.click_action = "deselect"
+                st.session_state.click_player = player
+
+# --- Handle click actions AFTER loop ---
+if st.session_state.click_action == "select":
+    p = st.session_state.click_player
+    if count_position(p['position']) < st.session_state.position_limits[p['position']]:
+        st.session_state.selected_team.append(p)
     else:
-        if st.button(f"Deselect {player['name']}", key=f"desel_{player['name']}"):
-            st.session_state.selected_team.remove(player)
-            st.session_state.to_rerun = True
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# --- Handle rerun safely after the loop ---
-if st.session_state.to_rerun:
-    st.session_state.to_rerun = False
+        st.warning(f"No more slots for {p['position']}s!")
+    st.session_state.click_action = None
+    st.session_state.click_player = None
     st.experimental_rerun()
 
-# --- Selected Team Summary ---
+elif st.session_state.click_action == "deselect":
+    p = st.session_state.click_player
+    st.session_state.selected_team.remove(p)
+    st.session_state.click_action = None
+    st.session_state.click_player = None
+    st.experimental_rerun()
+
+# --- Show selected team summary ---
 st.header("Selected Team")
 if st.session_state.selected_team:
     for p in st.session_state.selected_team:
@@ -84,9 +97,9 @@ if st.session_state.selected_team:
 else:
     st.info("No players selected yet.")
 
+# --- Save Team ---
 if st.button("Save Team"):
     if len(st.session_state.selected_team) < 13:
-        st.warning("You must select at least 13 players to save a team.")
+        st.warning("Select at least 13 players to save a team.")
     else:
         st.success("Team saved!")
-
