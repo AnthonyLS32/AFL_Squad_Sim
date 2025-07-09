@@ -15,6 +15,8 @@ if 'position_limits' not in st.session_state:
     st.session_state.position_limits = {
         'Forward': 6, 'Midfield': 6, 'Ruck': 2, 'Defender': 6, 'Bench': 2
     }
+if 'to_rerun' not in st.session_state:
+    st.session_state.to_rerun = False
 
 # --- Inject CSS for card styling ---
 st.markdown("""
@@ -59,15 +61,20 @@ for player in st.session_state.squad:
             pos = player['position']
             if count_position(pos) < st.session_state.position_limits[pos]:
                 st.session_state.selected_team.append(player)
-                st.experimental_rerun()
+                st.session_state.to_rerun = True
             else:
                 st.warning(f"No more slots for {pos}s!")
     else:
         if st.button(f"Deselect {player['name']}", key=f"desel_{player['name']}"):
             st.session_state.selected_team.remove(player)
-            st.experimental_rerun()
+            st.session_state.to_rerun = True
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+# --- Handle rerun safely after the loop ---
+if st.session_state.to_rerun:
+    st.session_state.to_rerun = False
+    st.experimental_rerun()
 
 # --- Selected Team Summary ---
 st.header("Selected Team")
