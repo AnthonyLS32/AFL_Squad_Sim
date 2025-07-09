@@ -10,6 +10,7 @@ player_pool = [
     {"name": "Harry McKay", "position": "Forward", "ovr": 80, "photo_url": "https://via.placeholder.com/100x130?text=Harry+McKay"},
     {"name": "Jack Higgins", "position": "Forward", "ovr": 78, "photo_url": "https://via.placeholder.com/100x130?text=Jack+Higgins"},
     {"name": "Bayley Fritsch", "position": "Forward", "ovr": 77, "photo_url": "https://via.placeholder.com/100x130?text=Bayley+Fritsch"},
+
     # Midfielders (7)
     {"name": "Patrick Cripps", "position": "Midfield", "ovr": 92, "photo_url": "https://via.placeholder.com/100x130?text=Patrick+Cripps"},
     {"name": "Andrew Brayshaw", "position": "Midfield", "ovr": 88, "photo_url": "https://via.placeholder.com/100x130?text=Andrew+Brayshaw"},
@@ -18,6 +19,7 @@ player_pool = [
     {"name": "Touk Miller", "position": "Midfield", "ovr": 86, "photo_url": "https://via.placeholder.com/100x130?text=Touk+Miller"},
     {"name": "Matt Rowell", "position": "Midfield", "ovr": 82, "photo_url": "https://via.placeholder.com/100x130?text=Matt+Rowell"},
     {"name": "Josh Daicos", "position": "Midfield", "ovr": 80, "photo_url": "https://via.placeholder.com/100x130?text=Josh+Daicos"},
+
     # Defenders (7)
     {"name": "Darcy Moore", "position": "Defender", "ovr": 87, "photo_url": "https://via.placeholder.com/100x130?text=Darcy+Moore"},
     {"name": "Tom Stewart", "position": "Defender", "ovr": 88, "photo_url": "https://via.placeholder.com/100x130?text=Tom+Stewart"},
@@ -26,13 +28,11 @@ player_pool = [
     {"name": "Jake Lever", "position": "Defender", "ovr": 84, "photo_url": "https://via.placeholder.com/100x130?text=Jake+Lever"},
     {"name": "Alex Witherden", "position": "Defender", "ovr": 82, "photo_url": "https://via.placeholder.com/100x130?text=Alex+Witherden"},
     {"name": "Nick Haynes", "position": "Defender", "ovr": 80, "photo_url": "https://via.placeholder.com/100x130?text=Nick+Haynes"},
+
     # Rucks (3)
     {"name": "Max Gawn", "position": "Ruck", "ovr": 91, "photo_url": "https://via.placeholder.com/100x130?text=Max+Gawn"},
     {"name": "Brodie Grundy", "position": "Ruck", "ovr": 89, "photo_url": "https://via.placeholder.com/100x130?text=Brodie+Grundy"},
     {"name": "Tim English", "position": "Ruck", "ovr": 86, "photo_url": "https://via.placeholder.com/100x130?text=Tim+English"},
-    # Utility (Bench)
-    {"name": "Wildcard 1", "position": "Midfield", "ovr": 75, "photo_url": "https://via.placeholder.com/100x130?text=Wildcard+1"},
-    {"name": "Wildcard 2", "position": "Forward", "ovr": 74, "photo_url": "https://via.placeholder.com/100x130?text=Wildcard+2"}
 ]
 
 # --- Required Slots ---
@@ -40,8 +40,7 @@ position_limits = {
     "Forward": 6,
     "Midfield": 6,
     "Defender": 6,
-    "Ruck": 2,
-    "Utility": 2
+    "Ruck": 2
 }
 
 # --- Session State ---
@@ -57,7 +56,7 @@ def count_position(pos):
 # --- Title ---
 st.title("AFL Career Squad Manager")
 
-st.write(f"**Selected Players:** {len(st.session_state.selected_team)}/22")
+st.write(f"**Selected Players:** {len(st.session_state.selected_team)}/20")
 
 # --- Squad Display ---
 for player in st.session_state.squad:
@@ -75,7 +74,6 @@ for player in st.session_state.squad:
     col1, col2 = st.columns(2)
     with col1:
         if not is_selected and st.button(f"Add {player['name']}", key=f"add_{player['name']}"):
-            # Check limit
             limit = position_limits.get(player['position'], 0)
             if count_position(player['position']) < limit:
                 st.session_state.selected_team.append(player)
@@ -88,8 +86,8 @@ for player in st.session_state.squad:
 
 # --- Final Save ---
 if st.button("Save Team"):
-    if len(st.session_state.selected_team) != 22:
-        st.error("Your team must have exactly 22 players.")
+    if len(st.session_state.selected_team) != 20:
+        st.error("Your team must have exactly 20 players.")
     else:
         st.success("Team saved!")
 
