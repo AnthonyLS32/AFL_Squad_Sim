@@ -6,9 +6,20 @@ import random
 with open('players.json') as f:
     player_pool = json.load(f)
 
+# --- Helper: create position-balanced squad ---
+def balanced_squad():
+    squad = []
+    squad += random.sample([p for p in player_pool if p['position'] == "Forward"], 8)
+    squad += random.sample([p for p in player_pool if p['position'] == "Midfield"], 8)
+    squad += random.sample([p for p in player_pool if p['position'] == "Ruck"], 3)
+    squad += random.sample([p for p in player_pool if p['position'] == "Defender"], 8)
+    rest_pool = [p for p in player_pool if p not in squad]
+    squad += random.sample(rest_pool, 3)  # add a few wildcard extras
+    return squad
+
 # --- Init session state ---
 if 'squad' not in st.session_state:
-    st.session_state.squad = random.sample(player_pool, 30)
+    st.session_state.squad = balanced_squad()
 if 'selected_team' not in st.session_state:
     st.session_state.selected_team = []
 if 'position_limits' not in st.session_state:
@@ -20,7 +31,7 @@ if 'click_action' not in st.session_state:
 if 'click_player' not in st.session_state:
     st.session_state.click_player = None
 
-# --- Inject CSS for player card styling ---
+# --- CSS for player card ---
 st.markdown("""
 <style>
 .player-card {
@@ -37,16 +48,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Helper: count how many players already picked in this position ---
+# --- Count position helper ---
 def count_position(pos):
     return len([p for p in st.session_state.selected_team if p['position'] == pos])
 
-# --- Title and status ---
+# --- App UI ---
 st.title("AFL FUT Squad Manager")
 st.header("Your Squad")
 st.write(f"Selected Players: {len(st.session_state.selected_team)}/22")
 
-# --- Show Squad ---
+# --- Show squad with select/deselect ---
 for player in st.session_state.squad:
     is_selected = player in st.session_state.selected_team
     card_class = "player-card selected" if is_selected else "player-card"
@@ -71,7 +82,7 @@ for player in st.session_state.squad:
                 st.session_state.click_action = "deselect"
                 st.session_state.click_player = player
 
-# --- Handle click actions AFTER loop ---
+# --- Click handler AFTER loop ---
 if st.session_state.click_action == "select":
     p = st.session_state.click_player
     if count_position(p['position']) < st.session_state.position_limits[p['position']]:
@@ -89,7 +100,7 @@ elif st.session_state.click_action == "deselect":
     st.session_state.click_player = None
     st.experimental_rerun()
 
-# --- Show selected team summary ---
+# --- Selected team summary ---
 st.header("Selected Team")
 if st.session_state.selected_team:
     for p in st.session_state.selected_team:
@@ -97,9 +108,8 @@ if st.session_state.selected_team:
 else:
     st.info("No players selected yet.")
 
-# --- Save Team ---
 if st.button("Save Team"):
     if len(st.session_state.selected_team) < 13:
-        st.warning("Select at least 13 players to save a team.")
+        st.warning("Select at least 13 players to save your team.")
     else:
         st.success("Team saved!")
