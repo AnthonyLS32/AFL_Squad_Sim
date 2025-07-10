@@ -4,23 +4,33 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Load player pool -----------------------------------------------------------
+# --- Load player pool safely -----------------------------------------------------------
 @st.cache_resource
 def load_players():
     with open('players.json') as f:
         players = json.load(f)
+    # Validate: ensure required keys exist
+    for p in players:
+        p.setdefault("name", "Unknown")
+        p.setdefault("position", "Unknown")
+        p.setdefault("ovr", 50)
+        p.setdefault("goals", 0)
+        p.setdefault("disposals", 0)
+        p.setdefault("tackles", 0)
+        p.setdefault("inside50", 0)
+        p.setdefault("rebound50", 0)
     return players
 
 player_pool = load_players()
 
-# --- Radar Chart ---------------------------------------------------------------
+# --- Radar Chart (Pentagon) -----------------------------------------------------------
 def show_player_radar(player):
     stats = [
-        player["goals"],
-        player["disposals"],
-        player["tackles"],
-        player["inside50"],
-        player["rebound50"],
+        player.get("goals", 0),
+        player.get("disposals", 0),
+        player.get("tackles", 0),
+        player.get("inside50", 0),
+        player.get("rebound50", 0),
     ]
     labels = ["Goals", "Disposals", "Tackles", "Inside 50", "Rebound 50"]
 
@@ -38,12 +48,11 @@ def show_player_radar(player):
 
     st.pyplot(fig)
 
-# --- Session State Setup -------------------------------------------------------
+# --- Session State Setup ---------------------------------------------------------------
 if 'squad' not in st.session_state:
     st.session_state.squad = []
     st.session_state.selected_team = []
 
-    # Always include Buddy Franklin
     buddy = next((p for p in player_pool if p["name"] == "Lance Franklin"), None)
     if buddy:
         st.session_state.squad.append(buddy)
@@ -57,17 +66,20 @@ if 'squad' not in st.session_state:
     st.session_state.squad += pick("Ruck", 2)
     st.session_state.squad += pick("Defender", 4)
 
-# --- Sidebar Navigation --------------------------------------------------------
+# --- Sidebar --------------------------------------------------------------------------
 tab = st.sidebar.radio("Menu", ["Squad", "Selected Team"])
 
-# --- Squad Tab -----------------------------------------------------------------
+# --- Squad Tab ------------------------------------------------------------------------
 if tab == "Squad":
     st.header("Your Squad")
     for p in st.session_state.squad:
-        st.write(f"**{p['name']}** | {p['position']} | OVR: {p['ovr']}")
+        name = p.get('name', 'Unknown')
+        pos = p.get('position', 'Unknown')
+        ovr = p.get('ovr', 50)
+        st.write(f"**{name}** | {pos} | OVR: {ovr}")
         show_player_radar(p)
 
-# --- Selected Team Tab ---------------------------------------------------------
+# --- Selected Team Tab ---------------------------------------------------------------
 elif tab == "Selected Team":
     st.header("Pick Your Starting Team")
     slots = [("Forward", 1), ("Midfield", 1), ("Ruck", 1), ("Defender", 1)]
@@ -77,8 +89,11 @@ elif tab == "Selected Team":
         st.subheader(f"{pos}")
         available = [p for p in st.session_state.squad if p["position"] == pos]
         names = [p["name"] for p in available]
-        sel = st.selectbox(f"Select {pos}", names, key=f"sel_{pos}")
-        selections.append(sel)
+        if names:
+            sel = st.selectbox(f"Select {pos}", names, key=f"sel_{pos}")
+            selections.append(sel)
+        else:
+            st.warning(f"No available players for {pos}!")
 
     if st.button("Save Team"):
         st.session_state.selected_team = selections.copy()
