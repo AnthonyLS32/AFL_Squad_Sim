@@ -1,142 +1,154 @@
 import streamlit as st
 import json
 import random
-import math
-import plotly.graph_objects as go
 
-# --- Load player pool ---
+# ---------------- Load Player Pool ------------------
 with open('players.json') as f:
     player_pool = json.load(f)
 
-# --- Helper: pick players by position ---
-def pick_for_pos(pos, n):
-    pool = [p for p in player_pool if p["position"] == pos]
-    return random.sample(pool, n)
-
-# --- Initialize session ---
+# -------------- Session State ----------------------
 if 'squad' not in st.session_state:
-    st.session_state.squad = [player for player in pick_for_pos("Forward", 5) + pick_for_pos("Midfield", 5) + pick_for_pos("Defender", 5) + pick_for_pos("Ruck", 3)]
-    st.session_state.squad.append(next(p for p in player_pool if p["name"] == "Lance Franklin"))
+    def pick_for_pos(pos, count):
+        pos_players = [p for p in player_pool if p['position'] == pos and p['name'] != "Lance Franklin"]
+        return random.sample(pos_players, count)
+
+    squad = [p for p in player_pool if p['name'] == "Lance Franklin"]
+    squad += pick_for_pos("Forward", 4)
+    squad += pick_for_pos("Midfield", 5)
+    squad += pick_for_pos("Defender", 5)
+    squad += pick_for_pos("Ruck", 2)
+
+    st.session_state.squad = squad
     st.session_state.selected_team = []
     st.session_state.xp = 0
     st.session_state.coins = 500
     st.session_state.match_log = []
-    st.session_state.ladder = []
 
-# --- Sidebar ---
-tab = st.sidebar.radio("Menu", ["Squad", "Selected Team", "Play Match", "Training", "Season"])
-
-# --- Helper: player stats ---
+# -------------------- Helper -----------------------
 def stats(p):
-    return f"{p['name']} | {p['position']} | OVR: {p['ovr']} | XP: {p['xp']}"
+    return (
+        f"{p['name']} | {p['position']} | OVR:{p['ovr']} | "
+        f"Goals:{p['goals']} Disposals:{p['disposals']} Marks:{p.get('marks',0)} Tackles:{p['tackles']} "
+    )
 
-# --- Helper: radar chart ---
-def radar_chart(p):
-    fig = go.Figure()
-    categories = ['disposals', 'tackles', 'marks', 'clearances', 'goals']
-    values = [p[c] for c in categories]
-    fig.add_trace(go.Scatterpolar(
-        r = values + [values[0]],
-        theta = categories + [categories[0]],
-        fill = 'toself'
-    ))
-    fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, max(values)+5])), showlegend=False)
-    st.plotly_chart(fig)
+# ---------------- Sidebar --------------------------
+tab = st.sidebar.radio("Menu", ["Squad", "Selected Team", "Play Match", "Training", "Store"])
 
-# --- SQUAD ---
+# ------------------ Squad --------------------------
 if tab == "Squad":
-    st.header("Your Squad")
+    st.title("Your Squad")
     st.write(f"XP: {st.session_state.xp} | Coins: {st.session_state.coins}")
     for p in st.session_state.squad:
+        st.image(p.get('photo_url', ''), width=100)
         st.write(stats(p))
-        radar_chart(p)
-        st.progress(min(100, int(p['xp'])), text=f"XP: {p['xp']}")
 
-# --- SELECTED TEAM ---
+# --------------- Selected Team ---------------------
 elif tab == "Selected Team":
-    st.header("Select Your Team (15 slots)")
-    slots = [("Forward", 5), ("Midfield", 5), ("Defender", 3), ("Ruck", 2)]
-    selections = []
+    st.title("Select Your Team")
+
+    slots = [("Forward", 5), ("Midfield", 5), ("Ruck", 2), ("Defender", 5)]
+
+    new_selection = []
+
     for pos, count in slots:
         st.subheader(f"{pos}s ({count})")
         pool = [p for p in st.session_state.squad if p['position'] == pos]
         names = [p['name'] for p in pool]
+
         for i in range(count):
-            sel = st.selectbox(f"{pos} #{i+1}", names, key=f"{pos}_{i}")
-            selections.append(sel)
+            key = f"{pos}_{i}"
+            sel = st.selectbox(f"{pos} #{i+1}", ["--"] + names, key=key)
+            if sel != "--":
+                new_selection.append(sel)
 
     if st.button("Save Selected Team"):
-        st.session_state.selected_team = selections.copy()
+        st.session_state.selected_team = new_selection.copy()
         st.success("Team saved!")
 
-    if st.button("Auto Pick"):
-        best = sorted(st.session_state.squad, key=lambda x: -x['ovr'])
-        auto = []
+    if st.button("Autopick Best Team"):
+        auto_team = []
         for pos, count in slots:
-            picks = [p['name'] for p in best if p['position'] == pos][:count]
-            auto.extend(picks)
-        st.session_state.selected_team = auto
-        st.success("Auto-picked best squad!")
+            pool = [p for p in st.session_state.squad if p['position'] == pos]
+            pool.sort(key=lambda x: x['ovr'], reverse=True)
+            auto_team += [p['name'] for p in pool[:count]]
+        st.session_state.selected_team = auto_team
+        st.success("Autopick complete!")
 
     if st.session_state.selected_team:
-        st.write("**Current Team:**")
-        for nm in st.session_state.selected_team:
-            st.write(nm)
+        st.write("**Current Selected Team:**")
+        for name in st.session_state.selected_team:
+            st.write(name)
 
-# --- PLAY MATCH ---
+# ------------------ Play Match ---------------------
 elif tab == "Play Match":
-    st.header("Play Match")
-    if not st.session_state.selected_team or len(st.session_state.selected_team) < 15:
-        st.warning("Pick and save at least 15 players.")
+    st.title("Play Match")
+    if not st.session_state.selected_team or len(st.session_state.selected_team) < 17:
+        st.warning("Pick & save your team first!")
     else:
-        opponent = random.choice(["Hawthorn", "Geelong", "Carlton", "Melbourne", "Fremantle"])
-        st.write(f"Next Match: vs {opponent}")
-        if st.button("Kick Off"):
-            score = random.randint(50, 120)
-            opp_score = random.randint(40, 110)
-            if score > opp_score:
-                result = "Win"
-                xp = 50
-                coins = 100
-            elif score == opp_score:
-                result = "Draw"
-                xp = 25
-                coins = 50
-            else:
-                result = "Loss"
-                xp = 10
-                coins = 0
-            st.session_state.xp += xp
-            st.session_state.coins += coins
-            for p in st.session_state.squad:
-                p['xp'] += random.randint(1, 5)
-            st.success(f"{result}! {score} - {opp_score} | +{xp} XP +{coins} Coins")
-            st.session_state.match_log.append({"opponent": opponent, "result": result})
+        if st.button("Play vs AI Club"):
+            opponent = random.choice(["Hawks", "Cats", "Demons", "Swans"])
+            result = random.choices(["Win", "Draw", "Loss"], weights=[0.5, 0.2, 0.3])[0]
+            xp_gain = 50 if result == "Win" else 25 if result == "Draw" else 10
+            coin_gain = 100 if result == "Win" else 50 if result == "Draw" else 0
 
-        if st.session_state.match_log:
-            st.subheader("Match Log")
-            for m in st.session_state.match_log[-5:]:
-                st.write(f"{m['result']} vs {m['opponent']}")
+            st.session_state.xp += xp_gain
+            st.session_state.coins += coin_gain
 
-# --- TRAINING ---
+            st.write(f"{result} vs {opponent}")
+            st.write(f"Gained {xp_gain} XP, {coin_gain} coins")
+
+            st.session_state.match_log.append({
+                "opponent": opponent,
+                "result": result,
+                "xp": xp_gain,
+                "coins": coin_gain
+            })
+
+    if st.session_state.match_log:
+        st.subheader("Match Log")
+        for m in st.session_state.match_log[-5:]:
+            st.write(f"{m['result']} vs {m['opponent']} (+{m['xp']} XP, +{m['coins']}¢)")
+
+# ---------------- Training -------------------------
 elif tab == "Training":
-    st.header("Training")
+    st.title("Training Center")
     st.write(f"XP: {st.session_state.xp}")
-    picks = st.multiselect("Pick up to 5 players", [p['name'] for p in st.session_state.squad])
-    stat = st.selectbox("Attribute", ["disposals", "tackles", "marks", "clearances", "goals"])
-    if st.button("Train"):
-        if st.session_state.xp >= 20 and len(picks) <= 5:
-            for name in picks:
-                for p in st.session_state.squad:
-                    if p['name'] == name:
-                        p[stat] += 0.5
-                        p['xp'] += 2
-            st.session_state.xp -= 20
-            st.success("Training done!")
-        else:
-            st.error("Not enough XP or too many players!")
 
-# --- SEASON MODE ---
-elif tab == "Season":
-    st.header("Season Mode")
-    st.write("Draft, ladder, finals coming soon!")
+    player = st.selectbox("Choose Player", [p['name'] for p in st.session_state.squad])
+    stat = st.selectbox("Attribute", ["goals", "disposals", "tackles"])
+    cost = 20
+
+    if st.button(f"Train +0.2 {stat} for {cost} XP"):
+        if st.session_state.xp >= cost:
+            for p in st.session_state.squad:
+                if p['name'] == player:
+                    p[stat] += 0.2
+                    p['ovr'] = round(p['ovr'] + 0.2, 1)
+                    st.session_state.xp -= cost
+                    st.success(f"{player} improved {stat}!")
+                    break
+        else:
+            st.error("Not enough XP!")
+
+# ---------------- Store ----------------------------
+elif tab == "Store":
+    st.title("Store")
+    st.write(f"Coins: {st.session_state.coins}")
+    price = 200
+    if st.button(f"Buy 5-Player Pack for {price} Coins"):
+        if st.session_state.coins >= price:
+            st.session_state.coins -= price
+            commons = [p for p in player_pool if p['ovr'] < 80]
+            rares = [p for p in player_pool if p['ovr'] >= 80]
+            pack = random.sample(commons, 4) + random.sample(rares, 1)
+            new = 0
+            for pl in pack:
+                if pl not in st.session_state.squad:
+                    st.session_state.squad.append(pl)
+                    new += 1
+            st.write("**Pack Contents:**")
+            for pl in pack:
+                st.write(stats(pl))
+            st.success(f"Added {new} new players!")
+        else:
+            st.error("Not enough coins!")
