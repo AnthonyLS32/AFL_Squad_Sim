@@ -3,6 +3,26 @@ import json
 import random
 import matplotlib.pyplot as plt
 
+# === Pentagon Chart ===
+
+def plot_pentagon(p):
+    categories = ["goals", "disposals", "tackles", "inside50", "rebound50"]
+    if p.get("hitouts", 0) > 0:
+        categories.append("hitouts")
+    values = [p.get(cat, 0) for cat in categories]
+
+    angles = [n / float(len(categories)) * 2 * 3.14159 for n in range(len(categories))]
+    values += values[:1]
+    angles += angles[:1]
+
+    fig, ax = plt.subplots(figsize=(2, 2), subplot_kw=dict(polar=True))
+    ax.fill(angles, values, color="blue", alpha=0.25)
+    ax.plot(angles, values, color="blue")
+    ax.set_yticklabels([])
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(categories, fontsize=8)
+    st.pyplot(fig)
+
 # === Load Players ===
 
 @st.cache_data
@@ -99,23 +119,3 @@ elif tab == "Training":
                     st.success(f"{player} trained {stat}!")
         else:
             st.error("Not enough XP!")
-
-# === Pentagon Chart ===
-
-def plot_pentagon(p):
-    categories = ["goals", "disposals", "tackles", "inside50", "rebound50"]
-    if p.get("hitouts", 0) > 0:
-        categories.append("hitouts")
-    values = [p.get(cat, 0) for cat in categories]
-
-    angles = [n / float(len(categories)) * 2 * 3.14159 for n in range(len(categories))]
-    values += values[:1]
-    angles += angles[:1]
-
-    fig, ax = plt.subplots(figsize=(2, 2), subplot_kw=dict(polar=True))
-    ax.fill(angles, values, color="blue", alpha=0.25)
-    ax.plot(angles, values, color="blue")
-    ax.set_yticklabels([])
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(categories, fontsize=8)
-    st.pyplot(fig)
