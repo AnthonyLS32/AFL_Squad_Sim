@@ -3,20 +3,36 @@ import json
 import random
 import matplotlib.pyplot as plt
 
-# === Pentagon Chart ===
+# === Radar Chart ===
 
 def plot_pentagon(p):
     categories = ["goals", "disposals", "tackles", "inside50", "rebound50"]
     if p.get("hitouts", 0) > 0:
         categories.append("hitouts")
-    values = [p.get(cat, 0) for cat in categories]
 
+    # Normalization max values (rough realistic AFL ranges)
+    max_vals = {
+        "goals": 4,
+        "disposals": 40,
+        "tackles": 10,
+        "inside50": 8,
+        "rebound50": 8,
+        "hitouts": 40
+    }
+
+    values = []
+    for cat in categories:
+        raw = p.get(cat, 0)
+        scaled = (raw / max_vals[cat]) * 10  # Scale to 0–10
+        values.append(scaled)
+
+    # Complete loop for radar
     angles = [n / float(len(categories)) * 2 * 3.14159 for n in range(len(categories))]
     values += values[:1]
     angles += angles[:1]
 
-    fig, ax = plt.subplots(figsize=(2, 2), subplot_kw=dict(polar=True))
-    ax.fill(angles, values, color="blue", alpha=0.25)
+    fig, ax = plt.subplots(figsize=(2.5, 2.5), subplot_kw=dict(polar=True))
+    ax.fill(angles, values, color="blue", alpha=0.3)
     ax.plot(angles, values, color="blue")
     ax.set_yticklabels([])
     ax.set_xticks(angles[:-1])
@@ -34,15 +50,21 @@ def load_players():
     return players
 
 def compute_ovr(p):
-    score = (
-        p.get("goals", 0) * 10 +
-        p.get("disposals", 0) * 2 +
-        p.get("tackles", 0) * 5 +
-        p.get("inside50", 0) * 4 +
-        p.get("rebound50", 0) * 4 +
-        p.get("hitouts", 0) * 0.5
-    )
-    return min(round(score), 99)
+    # Use same max_vals for balanced OVR
+    max_vals = {
+        "goals": 4,
+        "disposals": 40,
+        "tackles": 10,
+        "inside50": 8,
+        "rebound50": 8,
+        "hitouts": 40
+    }
+    stats = ["goals", "disposals", "tackles", "inside50", "rebound50", "hitouts"]
+    total = 0
+    for stat in stats:
+        stat_val = p.get(stat, 0)
+        total += (stat_val / max_vals[stat]) * 20  # each stat worth up to 20 pts
+    return min(round(total), 99)
 
 player_pool = load_players()
 
