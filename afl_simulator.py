@@ -54,6 +54,9 @@ def plot_pentagon(player):
 # --------- Draft Logic ---------
 def autopick():
     available = [p for p in player_pool if p not in st.session_state.squad]
+    if not available:
+        st.warning("No players left to pick!")
+        return
     pick = max(available, key=lambda p: p['ovr'])
     st.session_state.squad.append(pick)
     st.session_state.draft_picks.append(pick)
@@ -62,14 +65,20 @@ def autopick():
 def draft_phase():
     st.subheader(f"Draft Round {st.session_state.draft_round} / 10")
     available = [p for p in player_pool if p not in st.session_state.squad]
+    if not available:
+        st.warning("No players left in draft pool!")
+        return
     sample = random.sample(available, min(5, len(available)))
-    for p in sample:
-        if st.button(f"Pick {p['name']} ({p['position']}, OVR: {p['ovr']})"):
+    for i, p in enumerate(sample):
+        if st.button(
+            f"Pick {p['name']} ({p['position']}, OVR: {p['ovr']})",
+            key=f"pick_button_{st.session_state.draft_round}_{i}"
+        ):
             st.session_state.squad.append(p)
             st.session_state.draft_picks.append(p)
             st.session_state.draft_round += 1
             st.experimental_rerun()
-    if st.button("AutoPick Best Available"):
+    if st.button("AutoPick Best Available", key=f"auto_pick_{st.session_state.draft_round}"):
         autopick()
         st.experimental_rerun()
 
@@ -79,7 +88,7 @@ def training():
     st.write("Select up to 5 players and train them on a stat. Cost: 50 coins per player.")
     selected = st.multiselect("Pick Players to Train", [p['name'] for p in st.session_state.squad])
     stat = st.selectbox("Focus Stat", ['goals', 'disposals', 'tackles', 'inside50', 'onepercenters'])
-    if st.button("Train"):
+    if st.button("Train Players"):
         if len(selected) > 5:
             st.error("Select max 5 players")
             return
@@ -92,7 +101,7 @@ def training():
                     p[stat] += 0.1
                     st.session_state.xp[name] = st.session_state.xp.get(name, 0) + 5
         st.session_state.coins -= 50 * len(selected)
-        st.success("Training done!")
+        st.success("Training complete!")
 
 # --------- Squad Display ---------
 def squad_view():
