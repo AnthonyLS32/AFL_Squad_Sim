@@ -2,93 +2,101 @@
   {
     "name": "Lance Franklin",
     "position": "Forward",
-    "goals": 2.5,
-    "disposals": 15.0,
+    "goals": 3.2,
+    "disposals": 16.5,
     "tackles": 1.5,
-    "inside50": 4.0,
-    "rebound50": 0.2
+    "inside50": 3.0,
+    "rebound50": 0.1,
+    "hitouts": 0
   },
   {
-    "name": "Tom Lynch",
+    "name": "Tom Hawkins",
     "position": "Forward",
-    "goals": 2.3,
-    "disposals": 14.0,
-    "tackles": 1.4,
-    "inside50": 3.5,
-    "rebound50": 0.1
+    "goals": 2.7,
+    "disposals": 15.2,
+    "tackles": 1.3,
+    "inside50": 2.5,
+    "rebound50": 0.1,
+    "hitouts": 0
   },
   {
-    "name": "Charlie Cameron",
-    "position": "Forward",
-    "goals": 2.0,
-    "disposals": 13.5,
-    "tackles": 2.8,
-    "inside50": 3.8,
-    "rebound50": 0.0
-  },
-  {
-    "name": "Isaac Heeney",
-    "position": "Forward",
-    "goals": 1.8,
-    "disposals": 16.0,
-    "tackles": 3.2,
-    "inside50": 4.1,
-    "rebound50": 0.3
-  },
-  {
-    "name": "Patrick Cripps",
+    "name": "Christian Petracca",
     "position": "Midfield",
-    "goals": 0.7,
-    "disposals": 26.5,
-    "tackles": 5.2,
-    "inside50": 5.5,
-    "rebound50": 1.0
+    "goals": 1.2,
+    "disposals": 28.3,
+    "tackles": 4.9,
+    "inside50": 5.8,
+    "rebound50": 0.5,
+    "hitouts": 0
   },
   {
     "name": "Clayton Oliver",
     "position": "Midfield",
-    "goals": 0.5,
-    "disposals": 27.0,
-    "tackles": 5.8,
-    "inside50": 6.0,
-    "rebound50": 1.5
+    "goals": 0.8,
+    "disposals": 30.1,
+    "tackles": 6.0,
+    "inside50": 5.6,
+    "rebound50": 1.5,
+    "hitouts": 0
   },
   {
-    "name": "Jack Steele",
+    "name": "Marcus Bontempelli",
     "position": "Midfield",
-    "goals": 0.6,
-    "disposals": 25.0,
-    "tackles": 6.0,
-    "inside50": 5.2,
-    "rebound50": 1.4
+    "goals": 1.0,
+    "disposals": 27.8,
+    "tackles": 5.5,
+    "inside50": 5.1,
+    "rebound50": 1.0,
+    "hitouts": 0
   },
   {
     "name": "Max Gawn",
     "position": "Ruck",
-    "goals": 0.7,
-    "disposals": 15.5,
-    "tackles": 3.5,
+    "goals": 0.6,
+    "disposals": 18.0,
+    "tackles": 3.2,
     "inside50": 2.0,
-    "rebound50": 0.6,
-    "hitouts": 35.0
+    "rebound50": 0.5,
+    "hitouts": 37.0
   },
   {
     "name": "Brodie Grundy",
     "position": "Ruck",
-    "goals": 0.6,
-    "disposals": 16.5,
-    "tackles": 3.8,
-    "inside50": 1.9,
-    "rebound50": 0.5,
-    "hitouts": 33.0
+    "goals": 0.5,
+    "disposals": 17.2,
+    "tackles": 4.1,
+    "inside50": 1.8,
+    "rebound50": 0.4,
+    "hitouts": 35.0
   },
   {
     "name": "Darcy Moore",
     "position": "Defender",
     "goals": 0.2,
-    "disposals": 18.5,
-    "tackles": 1.5,
+    "disposals": 19.5,
+    "tackles": 2.0,
     "inside50": 1.0,
-    "rebound50": 7.0
+    "rebound50": 7.0,
+    "hitouts": 0
+  },
+  {
+    "name": "Harris Andrews",
+    "position": "Defender",
+    "goals": 0.1,
+    "disposals": 17.8,
+    "tackles": 1.7,
+    "inside50": 0.7,
+    "rebound50": 6.5,
+    "hitouts": 0
+  },
+  {
+    "name": "Luke Ryan",
+    "position": "Defender",
+    "goals": 0.0,
+    "disposals": 20.1,
+    "tackles": 2.2,
+    "inside50": 0.9,
+    "rebound50": 7.2,
+    "hitouts": 0
   }
 ]
