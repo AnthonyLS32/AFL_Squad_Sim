@@ -2,142 +2,124 @@ import streamlit as st
 import json
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
-# === Radar Chart ===
-
-def plot_pentagon(p):
-    categories = ["goals", "disposals", "tackles", "inside50", "rebound50"]
-    if p.get("hitouts", 0) > 0:
-        categories.append("hitouts")
-
-    # Normalization max values (rough realistic AFL ranges)
+# === Compute OVR ===
+def compute_ovr(p):
     max_vals = {
-        "goals": 4,
-        "disposals": 40,
-        "tackles": 10,
-        "inside50": 8,
-        "rebound50": 8,
-        "hitouts": 40
+        "goals": 4.0,
+        "disposals": 35.0,
+        "tackles": 8.0,
+        "inside50": 6.0,
+        "rebound50": 6.0,
+        "hitouts": 40.0
     }
-
-    values = []
-    for cat in categories:
-        raw = p.get(cat, 0)
-        scaled = (raw / max_vals[cat]) * 10  # Scale to 0–10
-        values.append(scaled)
-
-    # Complete loop for radar
-    angles = [n / float(len(categories)) * 2 * 3.14159 for n in range(len(categories))]
-    values += values[:1]
-    angles += angles[:1]
-
-    fig, ax = plt.subplots(figsize=(2.5, 2.5), subplot_kw=dict(polar=True))
-    ax.fill(angles, values, color="blue", alpha=0.3)
-    ax.plot(angles, values, color="blue")
-    ax.set_yticklabels([])
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(categories, fontsize=8)
-    st.pyplot(fig)
+    weights = {
+        "goals": 0.3,
+        "disposals": 0.4,
+        "tackles": 0.1,
+        "inside50": 0.08,
+        "rebound50": 0.08,
+        "hitouts": 0.2
+    }
+    total_weight = sum(weights.values())
+    ovr = 0
+    for stat, weight in weights.items():
+        val = p.get(stat, 0)
+        scaled = val / max_vals[stat]
+        ovr += scaled * weight
+    ovr = (ovr / total_weight) * 100
+    ovr = max(40, min(round(ovr * 0.9), 90))
+    return ovr
 
 # === Load Players ===
-
 @st.cache_data
 def load_players():
     with open("players.json") as f:
         players = json.load(f)
     for p in players:
-        p['ovr'] = compute_ovr(p)
+        p["ovr"] = compute_ovr(p)
     return players
-
-def compute_ovr(p):
-    # Use same max_vals for balanced OVR
-    max_vals = {
-        "goals": 4,
-        "disposals": 40,
-        "tackles": 10,
-        "inside50": 8,
-        "rebound50": 8,
-        "hitouts": 40
-    }
-    stats = ["goals", "disposals", "tackles", "inside50", "rebound50", "hitouts"]
-    total = 0
-    for stat in stats:
-        stat_val = p.get(stat, 0)
-        total += (stat_val / max_vals[stat]) * 20  # each stat worth up to 20 pts
-    return min(round(total), 99)
 
 player_pool = load_players()
 
-# === Initialise State ===
+# === Pentagon ===
+def plot_pentagon(player):
+    labels = ["Goals", "Disposals", "Tackles", "Inside50", "Rebound50", "Hitouts"]
+    stats = [
+        player.get("goals", 0) * 25,
+        player.get("disposals", 0) * 3,
+        player.get("tackles", 0) * 12.5,
+        player.get("inside50", 0) * 16.5,
+        player.get("rebound50", 0) * 16.5,
+        player.get("hitouts", 0) * 2.5
+    ]
+    angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
+    stats += stats[:1]
+    angles += angles[:1]
 
-if "squad" not in st.session_state:
-    def pick(pos, n):
-        pos_players = [p for p in player_pool if p['position'] == pos]
-        return random.sample(pos_players, min(n, len(pos_players)))
-    squad = []
-    squad += pick("Forward", 5)
-    squad += pick("Midfield", 5)
-    squad += pick("Defender", 5)
-    squad += pick("Ruck", 2)
-    st.session_state.squad = squad
-    st.session_state.selected_team = []
-    st.session_state.xp = 0
-    st.session_state.coins = 500
+    fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
+    ax.fill(angles, stats, color="skyblue", alpha=0.25)
+    ax.plot(angles, stats, color="blue", linewidth=2)
+    ax.set_yticklabels([])
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels)
+    st.pyplot(fig)
 
 # === Sidebar ===
+st.sidebar.title("Menu")
+page = st.sidebar.selectbox("Go to", ["Squad", "Selected Team", "Training"])
 
-tab = st.sidebar.radio("Menu", ["Squad", "Selected Team", "Training"])
+# === Session ===
+if "squad" not in st.session_state:
+    forwards = [p for p in player_pool if p["position"] == "Forward"]
+    mids = [p for p in player_pool if p["position"] == "Midfield"]
+    defs = [p for p in player_pool if p["position"] == "Defender"]
+    rucks = [p for p in player_pool if p["position"] == "Ruck"]
 
-# === Squad ===
+    starting_squad = (
+        random.sample(forwards, 3)
+        + random.sample(mids, 3)
+        + random.sample(defs, 3)
+        + random.sample(rucks, 1)
+    )
+    st.session_state.squad = starting_squad
+    st.session_state.selected_team = []
 
-if tab == "Squad":
+# === Autopick ===
+def autopick():
+    positions = {"Forward": 1, "Midfield": 1, "Defender": 1, "Ruck": 1}
+    selected = []
+    for pos, count in positions.items():
+        candidates = [p for p in st.session_state.squad if p["position"] == pos]
+        best = sorted(candidates, key=lambda p: p["ovr"], reverse=True)[:count]
+        selected.extend(best)
+    st.session_state.selected_team = selected
+
+# === Pages ===
+if page == "Squad":
     st.title("Your Squad")
-    st.write(f"XP: {st.session_state.xp} | Coins: {st.session_state.coins}")
     for p in st.session_state.squad:
-        st.write(f"**{p['name']}** | {p['position']} | OVR: {p['ovr']}")
+        st.write(f"{p['name']} | {p['position']} | OVR: {p['ovr']}")
         plot_pentagon(p)
 
-# === Selected Team ===
+elif page == "Selected Team":
+    st.title("Selected Team")
+    if st.button("AutoPick Best Team"):
+        autopick()
+    selected = st.session_state.selected_team
+    for p in selected:
+        st.write(f"{p['name']} | {p['position']} | OVR: {p['ovr']}")
+        plot_pentagon(p)
 
-elif tab == "Selected Team":
-    st.title("Select Your Team")
+    available = [p for p in st.session_state.squad if p not in selected]
+    st.write("Available:")
+    for p in available:
+        if st.button(f"Add {p['name']}"):
+            if len(selected) < 4:
+                st.session_state.selected_team.append(p)
+                st.experimental_rerun()
 
-    slots = [("Forward", 1), ("Midfield", 1), ("Defender", 1), ("Ruck", 1)]
-    selections = []
-
-    for pos, count in slots:
-        st.subheader(f"{pos} ({count})")
-        options = [p['name'] for p in st.session_state.squad if p['position'] == pos]
-        sel = st.selectbox(f"Select {pos}", options, key=f"sel_{pos}")
-        selections.append(sel)
-
-    if st.button("Save Team"):
-        st.session_state.selected_team = selections
-        st.success("Team saved!")
-
-    if st.session_state.selected_team:
-        st.write("**Current Selected Team:**")
-        for name in st.session_state.selected_team:
-            st.write(name)
-
-# === Training ===
-
-elif tab == "Training":
+elif page == "Training":
     st.title("Training")
-    st.write(f"XP Available: {st.session_state.xp}")
-
-    choices = [p['name'] for p in st.session_state.squad]
-    player = st.selectbox("Pick player", choices)
-    stat = st.selectbox("Stat to improve", ["goals", "disposals", "tackles", "inside50", "rebound50", "hitouts"])
-    cost = 20
-
-    if st.button(f"Train +0.5 {stat} for {cost} XP"):
-        if st.session_state.xp >= cost:
-            for p in st.session_state.squad:
-                if p['name'] == player:
-                    p[stat] += 0.5
-                    p['ovr'] = compute_ovr(p)
-                    st.session_state.xp -= cost
-                    st.success(f"{player} trained {stat}!")
-        else:
-            st.error("Not enough XP!")
+    st.write("Coming soon...")
