@@ -2,156 +2,93 @@
   {
     "name": "Lance Franklin",
     "position": "Forward",
-    "attributes": {"Speed": 85, "Strength": 90, "Skill": 92, "Endurance": 80, "Agility": 78}
+    "goals": 2.5,
+    "disposals": 15.0,
+    "tackles": 1.5,
+    "inside50": 4.0,
+    "rebound50": 0.2
   },
   {
     "name": "Tom Lynch",
     "position": "Forward",
-    "attributes": {"Speed": 80, "Strength": 85, "Skill": 88, "Endurance": 75, "Agility": 74}
+    "goals": 2.3,
+    "disposals": 14.0,
+    "tackles": 1.4,
+    "inside50": 3.5,
+    "rebound50": 0.1
   },
   {
     "name": "Charlie Cameron",
     "position": "Forward",
-    "attributes": {"Speed": 86, "Strength": 78, "Skill": 85, "Endurance": 76, "Agility": 88}
+    "goals": 2.0,
+    "disposals": 13.5,
+    "tackles": 2.8,
+    "inside50": 3.8,
+    "rebound50": 0.0
+  },
+  {
+    "name": "Isaac Heeney",
+    "position": "Forward",
+    "goals": 1.8,
+    "disposals": 16.0,
+    "tackles": 3.2,
+    "inside50": 4.1,
+    "rebound50": 0.3
   },
   {
     "name": "Patrick Cripps",
     "position": "Midfield",
-    "attributes": {"Speed": 80, "Strength": 85, "Skill": 90, "Endurance": 88, "Agility": 82}
+    "goals": 0.7,
+    "disposals": 26.5,
+    "tackles": 5.2,
+    "inside50": 5.5,
+    "rebound50": 1.0
   },
   {
     "name": "Clayton Oliver",
     "position": "Midfield",
-    "attributes": {"Speed": 78, "Strength": 80, "Skill": 89, "Endurance": 85, "Agility": 81}
-  },
-  {
-    "name": "Touk Miller",
-    "position": "Midfield",
-    "attributes": {"Speed": 82, "Strength": 77, "Skill": 86, "Endurance": 87, "Agility": 83}
-  },
-  {
-    "name": "Max Gawn",
-    "position": "Ruck",
-    "attributes": {"Speed": 60, "Strength": 95, "Skill": 75, "Endurance": 85, "Agility": 70}
-  },
-  {
-    "name": "Brodie Grundy",
-    "position": "Ruck",
-    "attributes": {"Speed": 62, "Strength": 90, "Skill": 78, "Endurance": 82, "Agility": 68}
-  },
-  {
-    "name": "Tim English",
-    "position": "Ruck",
-    "attributes": {"Speed": 65, "Strength": 85, "Skill": 80, "Endurance": 80, "Agility": 75}
-  },
-  {
-    "name": "Darcy Moore",
-    "position": "Defender",
-    "attributes": {"Speed": 75, "Strength": 80, "Skill": 82, "Endurance": 78, "Agility": 77}
-  },
-  {
-    "name": "Tom Stewart",
-    "position": "Defender",
-    "attributes": {"Speed": 78, "Strength": 82, "Skill": 85, "Endurance": 80, "Agility": 79}
-  },
-  {
-    "name": "Luke Ryan",
-    "position": "Defender",
-    "attributes": {"Speed": 76, "Strength": 79, "Skill": 83, "Endurance": 77, "Agility": 78}
-  },
-  {
-    "name": "Harris Andrews",
-    "position": "Defender",
-    "attributes": {"Speed": 74, "Strength": 82, "Skill": 80, "Endurance": 76, "Agility": 75}
-  },
-  {
-    "name": "Jake Lever",
-    "position": "Defender",
-    "attributes": {"Speed": 73, "Strength": 78, "Skill": 81, "Endurance": 75, "Agility": 74}
-  },
-  {
-    "name": "Bailey Smith",
-    "position": "Midfield",
-    "attributes": {"Speed": 85, "Strength": 75, "Skill": 84, "Endurance": 88, "Agility": 85}
-  },
-  {
-    "name": "Zach Merrett",
-    "position": "Midfield",
-    "attributes": {"Speed": 82, "Strength": 76, "Skill": 86, "Endurance": 85, "Agility": 82}
-  },
-  {
-    "name": "Andrew Brayshaw",
-    "position": "Midfield",
-    "attributes": {"Speed": 81, "Strength": 78, "Skill": 87, "Endurance": 86, "Agility": 81}
-  },
-  {
-    "name": "Sam Walsh",
-    "position": "Midfield",
-    "attributes": {"Speed": 83, "Strength": 77, "Skill": 85, "Endurance": 87, "Agility": 83}
+    "goals": 0.5,
+    "disposals": 27.0,
+    "tackles": 5.8,
+    "inside50": 6.0,
+    "rebound50": 1.5
   },
   {
     "name": "Jack Steele",
     "position": "Midfield",
-    "attributes": {"Speed": 79, "Strength": 79, "Skill": 84, "Endurance": 84, "Agility": 80}
+    "goals": 0.6,
+    "disposals": 25.0,
+    "tackles": 6.0,
+    "inside50": 5.2,
+    "rebound50": 1.4
   },
   {
-    "name": "Alex Witherden",
-    "position": "Defender",
-    "attributes": {"Speed": 74, "Strength": 75, "Skill": 79, "Endurance": 75, "Agility": 72}
-  },
-  {
-    "name": "Isaac Smith",
-    "position": "Forward",
-    "attributes": {"Speed": 82, "Strength": 72, "Skill": 78, "Endurance": 80, "Agility": 81}
-  },
-  {
-    "name": "Generic Player 1",
-    "position": "Forward",
-    "attributes": {"Speed": 70, "Strength": 65, "Skill": 68, "Endurance": 70, "Agility": 72}
-  },
-  {
-    "name": "Generic Player 2",
-    "position": "Midfield",
-    "attributes": {"Speed": 68, "Strength": 66, "Skill": 70, "Endurance": 72, "Agility": 69}
-  },
-  {
-    "name": "Generic Player 3",
+    "name": "Max Gawn",
     "position": "Ruck",
-    "attributes": {"Speed": 62, "Strength": 75, "Skill": 65, "Endurance": 70, "Agility": 63}
+    "goals": 0.7,
+    "disposals": 15.5,
+    "tackles": 3.5,
+    "inside50": 2.0,
+    "rebound50": 0.6,
+    "hitouts": 35.0
   },
   {
-    "name": "Generic Player 4",
-    "position": "Defender",
-    "attributes": {"Speed": 66, "Strength": 68, "Skill": 67, "Endurance": 69, "Agility": 65}
-  },
-  {
-    "name": "Generic Player 5",
-    "position": "Forward",
-    "attributes": {"Speed": 72, "Strength": 70, "Skill": 74, "Endurance": 70, "Agility": 73}
-  },
-  {
-    "name": "Generic Player 6",
-    "position": "Midfield",
-    "attributes": {"Speed": 69, "Strength": 68, "Skill": 72, "Endurance": 71, "Agility": 70}
-  },
-  {
-    "name": "Generic Player 7",
+    "name": "Brodie Grundy",
     "position": "Ruck",
-    "attributes": {"Speed": 64, "Strength": 74, "Skill": 66, "Endurance": 68, "Agility": 64}
+    "goals": 0.6,
+    "disposals": 16.5,
+    "tackles": 3.8,
+    "inside50": 1.9,
+    "rebound50": 0.5,
+    "hitouts": 33.0
   },
   {
-    "name": "Generic Player 8",
+    "name": "Darcy Moore",
     "position": "Defender",
-    "attributes": {"Speed": 67, "Strength": 69, "Skill": 68, "Endurance": 70, "Agility": 66}
-  },
-  {
-    "name": "Generic Player 9",
-    "position": "Forward",
-    "attributes": {"Speed": 73, "Strength": 71, "Skill": 75, "Endurance": 72, "Agility": 74}
-  },
-  {
-    "name": "Generic Player 10",
-    "position": "Utility",
-    "attributes": {"Speed": 70, "Strength": 70, "Skill": 70, "Endurance": 70, "Agility": 70}
+    "goals": 0.2,
+    "disposals": 18.5,
+    "tackles": 1.5,
+    "inside50": 1.0,
+    "rebound50": 7.0
   }
 ]
