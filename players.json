@@ -438,5 +438,206 @@
     "inside50": 4.5,
     "onepercenters": 0.5,
     "ovr": 74
+  },
+  {
+    "name": "Darcy Parish",
+    "position": "Midfield",
+    "goals": 0.5,
+    "disposals": 26.1,
+    "tackles": 5.2,
+    "inside50": 4.7,
+    "onepercenters": 0.8,
+    "ovr": 85
+  },
+  {
+    "name": "Christian Petracca",
+    "position": "Midfield",
+    "goals": 1.2,
+    "disposals": 25.8,
+    "tackles": 4.9,
+    "inside50": 5.2,
+    "onepercenters": 0.7,
+    "ovr": 86
+  },
+  {
+    "name": "Josh Dunkley",
+    "position": "Midfield",
+    "goals": 0.8,
+    "disposals": 24.5,
+    "tackles": 6.0,
+    "inside50": 5.1,
+    "onepercenters": 0.9,
+    "ovr": 84
+  },
+  {
+    "name": "Caleb Serong",
+    "position": "Midfield",
+    "goals": 0.6,
+    "disposals": 23.9,
+    "tackles": 5.5,
+    "inside50": 4.8,
+    "onepercenters": 0.7,
+    "ovr": 83
+  },
+  {
+    "name": "Luke Davies-Uniacke",
+    "position": "Midfield",
+    "goals": 0.7,
+    "disposals": 23.5,
+    "tackles": 5.1,
+    "inside50": 4.3,
+    "onepercenters": 0.6,
+    "ovr": 82
+  },
+  {
+    "name": "Oscar Allen",
+    "position": "Forward",
+    "goals": 2.0,
+    "disposals": 12.2,
+    "tackles": 1.4,
+    "inside50": 2.5,
+    "onepercenters": 0.5,
+    "ovr": 78
+  },
+  {
+    "name": "Jake Stringer",
+    "position": "Forward",
+    "goals": 1.8,
+    "disposals": 14.0,
+    "tackles": 2.1,
+    "inside50": 3.1,
+    "onepercenters": 0.4,
+    "ovr": 79
+  },
+  {
+    "name": "Jeremy Cameron",
+    "position": "Forward",
+    "goals": 2.4,
+    "disposals": 13.7,
+    "tackles": 1.8,
+    "inside50": 3.3,
+    "onepercenters": 0.6,
+    "ovr": 84
+  },
+  {
+    "name": "Bayley Fritsch",
+    "position": "Forward",
+    "goals": 2.0,
+    "disposals": 11.8,
+    "tackles": 1.2,
+    "inside50": 2.4,
+    "onepercenters": 0.3,
+    "ovr": 77
+  },
+  {
+    "name": "Taylor Walker",
+    "position": "Forward",
+    "goals": 2.5,
+    "disposals": 12.5,
+    "tackles": 1.0,
+    "inside50": 2.2,
+    "onepercenters": 0.2,
+    "ovr": 80
+  },
+  {
+    "name": "Jack Gunston",
+    "position": "Forward",
+    "goals": 1.5,
+    "disposals": 10.4,
+    "tackles": 1.1,
+    "inside50": 2.0,
+    "onepercenters": 0.3,
+    "ovr": 74
+  },
+  {
+    "name": "Ben King",
+    "position": "Forward",
+    "goals": 2.1,
+    "disposals": 11.6,
+    "tackles": 0.9,
+    "inside50": 2.1,
+    "onepercenters": 0.4,
+    "ovr": 76
+  },
+  {
+    "name": "Sam Taylor",
+    "position": "Defender",
+    "goals": 0.1,
+    "disposals": 16.4,
+    "tackles": 1.7,
+    "inside50": 0.8,
+    "onepercenters": 7.8,
+    "ovr": 83
+  },
+  {
+    "name": "Steven May",
+    "position": "Defender",
+    "goals": 0.0,
+    "disposals": 17.8,
+    "tackles": 1.6,
+    "inside50": 0.9,
+    "onepercenters": 7.1,
+    "ovr": 84
+  },
+  {
+    "name": "Jacob Weitering",
+    "position": "Defender",
+    "goals": 0.0,
+    "disposals": 16.9,
+    "tackles": 1.4,
+    "inside50": 0.7,
+    "onepercenters": 7.5,
+    "ovr": 82
+  },
+  {
+    "name": "Jack Buckley",
+    "position": "Defender",
+    "goals": 0.0,
+    "disposals": 15.5,
+    "tackles": 1.5,
+    "inside50": 0.6,
+    "onepercenters": 7.0,
+    "ovr": 80
+  },
+  {
+    "name": "Nick Daicos",
+    "position": "Defender",
+    "goals": 0.5,
+    "disposals": 25.5,
+    "tackles": 2.4,
+    "inside50": 3.5,
+    "onepercenters": 2.5,
+    "ovr": 88
+  },
+  {
+    "name": "Dylan Grimes",
+    "position": "Defender",
+    "goals": 0.0,
+    "disposals": 14.8,
+    "tackles": 1.3,
+    "inside50": 0.6,
+    "onepercenters": 6.9,
+    "ovr": 79
+  },
+  {
+    "name": "Generic Forward",
+    "position": "Forward",
+    "goals": 1.5,
+    "disposals": 12.0,
+    "tackles": 1.0,
+    "inside50": 2.0,
+    "onepercenters": 0.3,
+    "ovr": 72
+  },
+  {
+    "name": "Generic Midfielder",
+    "position": "Midfield",
+    "goals": 0.7,
+    "disposals": 22.0,
+    "tackles": 4.2,
+    "inside50": 4.5,
+    "onepercenters": 0.5,
+    "ovr": 74
   }
 ]
+
